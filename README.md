@@ -1,8 +1,8 @@
-🧠 Project Idea: Local Food Explorer
+ Project Idea: Local Food Explorer
 A full-stack web application that allows users to explore regional food specialties based on their location or entered city name. It displays popular local dishes with images, descriptions, and origins, helping food lovers and travelers discover culinary highlights.
 
-🛠 Tech Stack
-👨‍💻 Frontend (React)
+ Tech Stack
+ Frontend (React)
 React.js – Component-based UI
 
 React Router DOM – Routing between pages (Home, Login, Explore, Admin)
