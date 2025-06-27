@@ -26,37 +26,29 @@ app.get('/', (req,res) => {
     res.send("Server is running successfully");
 });
 
+
 //Routes
 
-//GET all foods
-app.get('/foods', async(req,res) => {
-    try{
+// GET all foods
+app.get('/foods', async (req, res) => {
+    try {
         const foods = await Food.find();
-        if(!foods){
-            res.status(404).json({message: error.message});
-        };
-
-        res.json(foods);
-    }
-
-    catch(err){
-        res.status(500).json({message: err.message});
+        res.json(foods); // No need to check !foods, as it returns [] if empty
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 });
 
-//GET foods by city
-app.get('/foods/:city', async(req,res) => {
-    try{
-        const foods = await Food.findById(req.params.id);
-        if(!foods){
-            res.json(404).json({message: error.message});
-        };
-
+// GET foods by city
+app.get('/foods/:city', async (req, res) => {
+    try {
+        const foods = await Food.find({ city: req.params.city });
+        if (foods.length === 0) {
+            return res.status(404).json({ message: "No foods found for this city" });
+        }
         res.json(foods);
-    }
-
-    catch(err){
-        res.status(500).json({message: err.message});
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 });
 
