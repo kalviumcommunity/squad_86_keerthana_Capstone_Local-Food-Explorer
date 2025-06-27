@@ -33,23 +33,23 @@ app.get('/', (req,res) => {
 app.get('/foods', async (req, res) => {
     try {
         const foods = await Food.find();
-        res.json(foods); // No need to check !foods, as it returns [] if empty
+        res.json(foods);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
 
-// GET foods by city
-app.get('/foods/:city', async (req, res) => {
-    try {
-        const foods = await Food.find({ city: req.params.city });
-        if (foods.length === 0) {
-            return res.status(404).json({ message: "No foods found for this city" });
-        }
-        res.json(foods);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+// GET foods by region
+app.get('/foods/:region', async (req, res) => {
+  try {
+    const foods = await Food.find({ region: req.params.region });
+    if (foods.length === 0) {
+      return res.status(404).json({ message: "No foods found for this region" });
     }
+    res.json(foods);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 app.listen(PORT, () => {
