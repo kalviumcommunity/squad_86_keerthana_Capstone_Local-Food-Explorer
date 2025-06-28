@@ -26,39 +26,46 @@ app.get('/', (req,res) => {
     res.send("Server is running successfully");
 });
 
+
 //Routes
 
-//GET all foods
-app.get('/foods', async(req,res) => {
-    try{
+// GET all foods
+app.get('/foods', async (req, res) => {
+    try {
         const foods = await Food.find();
-        if(!foods){
-            res.status(404).json({message: error.message});
-        };
-
         res.json(foods);
-    }
-
-    catch(err){
-        res.status(500).json({message: err.message});
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 });
 
-//GET foods by city
-app.get('/foods/:city', async(req,res) => {
-    try{
-        const foods = await Food.findById(req.params.id);
-        if(!foods){
-            res.json(404).json({message: error.message});
-        };
-
-        res.json(foods);
+// GET foods by region
+app.get('/foods/:region', async (req, res) => {
+  try {
+    const foods = await Food.find({ region: req.params.region });
+    if (foods.length === 0) {
+      return res.status(404).json({ message: "No foods found for this region" });
     }
-
-    catch(err){
-        res.status(500).json({message: err.message});
-    }
+    res.json(foods);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
+
+//POST api endpoint
+app.post('/foods', async(req,res) => {
+  const {name, region, description} = req.body;
+
+  try{
+    const newFood = new Food({name, region, description});
+    await newFood.save();
+    res.status(201).json(newFood);
+  }
+
+  catch(err){
+    res.status(201).json({message: err.message});
+  }
+})
 
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
