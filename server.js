@@ -52,6 +52,21 @@ app.get('/foods/:region', async (req, res) => {
   }
 });
 
+//POST api endpoint
+app.post('/foods', async(req,res) => {
+  const {name, region, description} = req.body;
+
+  try{
+    const newFood = new Food({name, region, description});
+    await newFood.save();
+    res.status(201).json(newFood);
+  }
+
+  catch(err){
+    res.status(201).json({message: err.message});
+  }
+})
+
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
 });
