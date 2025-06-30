@@ -10,14 +10,8 @@ const foodSchema = new mongoose.Schema({
         required:true
     },
 
-    description:{
-        type:String,
-        required:true
-    },
-
-    image:{
-        type:String
-    }
+    description:String,
+    image:String,
 });
 
 module.exports = mongoose.model('Food', foodSchema);
