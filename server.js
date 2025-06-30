@@ -40,7 +40,7 @@ app.get('/foods', async (req, res) => {
 });
 
 // GET foods by region
-app.get('/foods/:region', async (req, res) => {
+app.get('/foods/region/:region', async (req, res) => {
   try {
     const foods = await Food.find({ region: req.params.region });
     if (foods.length === 0) {
@@ -65,7 +65,26 @@ app.post('/foods', async(req,res) => {
   catch(err){
     res.status(201).json({message: err.message});
   }
-})
+});
+
+//PUT api endpoint
+app.put('/foods/:id', async(req,res) => {
+  const {name, region, description, image} = req.body;
+
+  try{
+    const updateFood = await Food.findByIdAndUpdate(req.params.id, {name, region, description, image}, {new: true});
+
+    if(!updateFood){
+      return res.status(404).json({message : 'Food item not found'});
+    }
+
+    res.json(updateFood);
+  }
+
+  catch(err){
+    res.status(500).json({message: err.message});
+  }
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
