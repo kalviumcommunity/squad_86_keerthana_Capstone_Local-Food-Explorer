@@ -6,7 +6,8 @@ const foodSchema = new mongoose.Schema({
     },
 
     region:{
-        type:String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Region',
         required:true
     },
 
