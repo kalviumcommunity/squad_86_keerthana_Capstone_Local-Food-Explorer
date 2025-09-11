@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const Food = require('./models/Food');
+const Region = require('./models/Region');
 
 dotenv.config();
 
@@ -29,10 +30,31 @@ app.get('/', (req,res) => {
 
 //Routes
 
+// Regions
+app.post('/regions', async (req, res) => {
+    try {
+        const { name, description } = req.body;
+        const region = new Region({ name, description });
+        await region.save();
+        res.status(201).json(region);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+app.get('/regions', async (req, res) => {
+    try {
+        const regions = await Region.find();
+        res.json(regions);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // GET all foods
 app.get('/foods', async (req, res) => {
     try {
-        const foods = await Food.find();
+        const foods = await Food.find().populate('region');
         res.json(foods);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -40,11 +62,29 @@ app.get('/foods', async (req, res) => {
 });
 
 // GET foods by region
+// Legacy: by region name; resolve Region and return foods
 app.get('/foods/region/:region', async (req, res) => {
   try {
-    const foods = await Food.find({ region: req.params.region });
+    const regionDoc = await Region.findOne({ name: req.params.region });
+    if (!regionDoc) {
+      return res.status(404).json({ message: 'Region not found' });
+    }
+    const foods = await Food.find({ region: regionDoc._id }).populate('region');
     if (foods.length === 0) {
-      return res.status(404).json({ message: "No foods found for this region" });
+      return res.status(404).json({ message: 'No foods found for this region' });
+    }
+    res.json(foods);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// New: by regionId
+app.get('/foods/by-region/:regionId', async (req, res) => {
+  try {
+    const foods = await Food.find({ region: req.params.regionId }).populate('region');
+    if (foods.length === 0) {
+      return res.status(404).json({ message: 'No foods found for this region' });
     }
     res.json(foods);
   } catch (err) {
@@ -54,16 +94,17 @@ app.get('/foods/region/:region', async (req, res) => {
 
 //POST api endpoint
 app.post('/foods', async(req,res) => {
-  const {name, region, description} = req.body;
+  const {name, region, description, image} = req.body;
 
   try{
-    const newFood = new Food({name, region, description});
+    const newFood = new Food({name, region, description, image});
     await newFood.save();
-    res.status(201).json(newFood);
+    const populated = await newFood.populate('region');
+    res.status(201).json(populated);
   }
 
   catch(err){
-    res.status(201).json({message: err.message});
+    res.status(500).json({message: err.message});
   }
 });
 
@@ -72,7 +113,11 @@ app.put('/foods/:id', async(req,res) => {
   const {name, region, description, image} = req.body;
 
   try{
-    const updateFood = await Food.findByIdAndUpdate(req.params.id, {name, region, description, image}, {new: true});
+    const updateFood = await Food.findByIdAndUpdate(
+      req.params.id,
+      {name, region, description, image},
+      {new: true}
+    ).populate('region');
 
     if(!updateFood){
       return res.status(404).json({message : 'Food item not found'});
